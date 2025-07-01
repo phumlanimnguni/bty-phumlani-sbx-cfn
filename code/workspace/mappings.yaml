@@ -1,0 +1,58 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: AWS CloudFormation workshop - Mappings (uksb-1q9p31idr) (tag:mappings).
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: 'Amazon EC2 Configuration'
+        Parameters:
+          # Remove InstanceType group. Done
+
+    ParameterLabels:
+      # Remove the InstanceType parameter label. Done
+      
+      AmiID:
+        default: 'Amazon Machine Image ID'
+
+Parameters:
+  # Replace the InstanceType parameter with EnvironmentType parameter.
+  Parameters:
+  EnvironmentType:
+    Description: 'Specify the Environment type of the stack.'
+    Type: String
+    Default: Test
+    AllowedValues:
+      - Test
+      - Prod
+    ConstraintDescription: 'Specify either Test or Prod.'
+ 
+
+  AmiID:
+    Type: AWS::EC2::Image::Id
+    Description: 'The ID of the AMI.'
+
+# Add a Mappings section here!
+Mappings:
+  EnvironmentToInstanceType: # Map Name
+    Test: # Top level key
+      InstanceType: t2.micro # Second level key
+    Prod:
+      InstanceType: t2.small
+
+Resources:
+  WebServerInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref AmiID
+      # Update the 'InstanceType' property with !FindInMap function
+       InstanceType: !FindInMap
+        - EnvironmentToInstanceType # Map Name
+        - !Ref EnvironmentType # Top Level Key
+        - InstanceType # Second Level Key
+
+
+      Tags:
+        - Key: Name
+          Value: !Join [ '-', [ !Ref EnvironmentType, webserver ] ] # replace the 'InstanceType' with 'EnvironmentType'
